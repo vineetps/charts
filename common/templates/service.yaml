@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: Service
+metadata:
+  namespace: {{ .Values.namespace }}
+  name: {{ .Values.label.app }}-svc
+  labels:
+    app: {{ .Values.label.app }}
+    environment: {{ .Values.label.env }}
+    team: {{ .Values.label.team }}
+  annotations:
+    getambassador.io/config: |-
+      ---
+      apiVersion: ambassador/v1
+      kind: Mapping
+      name: "{{ .Values.label.app }}-mapping"
+      ambassador_id: default
+      host: "{{ .Values.label.app }}.{{ .Values.namespace}}.{{ .Values.ambassador.url }}"
+      bypass_auth: true
+      prefix: /
+      service: "{{ .Values.label.app }}-svc.{{ .Values.namespace }}:{{ .Values.service.port }}"
+spec:
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.targetPort}}
+      protocol: TCP
+      name: {{ .Values.label.app }}
+  selector:
+    app: {{ .Values.label.app }}
+    environment: {{ .Values.label.env }}
+    team: {{ .Values.label.team }}
+  type: {{ .Values.service.type }}
