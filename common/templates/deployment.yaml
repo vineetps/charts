@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: {{ .Values.label.app }}
+    environment: {{ .Values.label.env }}
+    team: {{ .Values.label.team }}
+  name: {{ .Values.label.app }}-dep
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.label.app }}
+      project: {{ .Values.label.project }}
+      team: {{ .Values.label.team }}
+  strategy:
+    {{- toYaml .Values.strategy | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+      labels:
+        app: {{ .Values.label.app }}
+        project: {{ .Values.label.project }}
+        team: {{ .Values.label.team }}
+    spec:
+      containers:
+      - image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        name: {{ .Values.label.app }}
+        {{- if .Values.enable.env}}
+        env: 
+          {{- toYaml .Values.env | nindent 12}}
+        {[- end}}
+        ports:
+        - containerPort: {{ .Values.containerPort }}
+        resources:
+          {{- toYaml .Values.resources | nindent 12 }}
+        readinessProbe:
+          {{- toYaml .Values.readinessProbe | nindent 12 }}
+        livenessProbe:
+          {{- toYaml .Values.livenessProbe | nindent 12 }}
+      restartPolicy: {{ .Values.restartPolicy }}
+      terminationGracePeriodSeconds: 10
