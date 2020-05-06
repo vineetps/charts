@@ -31,7 +31,7 @@ spec:
         {{- if .Values.enable.env}}
         env: 
           {{- toYaml .Values.env | nindent 12}}
-        {[- end}}
+        {{- end}}
         ports:
         - containerPort: {{ .Values.containerPort }}
         resources:
